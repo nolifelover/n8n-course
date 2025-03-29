@@ -8,6 +8,7 @@
 - Docker Compose
 - Git
 - [ngrok](https://ngrok.com/) (สำหรับการทดสอบ webhook)
+- [Cloudflare](https://cloudflare.com/) (สำหรับ tunnel)
 
 ## การติดตั้ง
 
@@ -92,6 +93,39 @@ docker-compose restart n8n
 - URL ของ ngrok จะเปลี่ยนทุกครั้งที่รันใหม่ (เว้นแต่ใช้บัญชีแบบ paid)
 - ควรใช้ ngrok เฉพาะสำหรับการทดสอบเท่านั้น
 - สำหรับการใช้งานจริง ควรใช้ domain ของตัวเองผ่าน Nginx Proxy Manager
+
+## การตั้งค่า Cloudflare Tunnel
+
+1. ติดตั้ง Cloudflare Tunnel:
+   - ไปที่ Cloudflare Zero Trust > Access > Tunnels
+   - กดปุ่ม "Create a tunnel"
+   - เลือกชื่อ tunnel และกด "Create tunnel"
+
+2. ตั้งค่า Token:
+   - หลังจากสร้าง tunnel แล้ว Cloudflare จะแสดง token
+   - คัดลอก token และใส่ในไฟล์ .env:
+   ```env
+   CLOUDFLARE_TOKEN=your_cloudflare_tunnel_token
+   ```
+
+3. ตั้งค่า DNS:
+   - ไปที่ Cloudflare Zero Trust > Access > Tunnels
+   - เลือก tunnel ที่สร้าง
+   - กด "Configure" > "Public Hostname"
+   - เพิ่ม hostname สำหรับ n8n:
+     - Subdomain: n8n
+     - Domain: your-domain.com
+     - Service: http://localhost:5678
+
+4. รีสตาร์ท cloudflared service:
+```bash
+docker-compose restart cloudflared
+```
+
+หมายเหตุ:
+- Cloudflare Tunnel จะสร้าง secure connection ระหว่าง Cloudflare และ local server
+- ไม่จำเป็นต้องเปิด port 5678 ไปยังอินเตอร์เน็ต
+- สามารถเข้าถึง n8n ได้ผ่าน URL: https://n8n.your-domain.com
 
 ## โครงสร้างโปรเจค
 

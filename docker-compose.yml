@@ -63,4 +63,13 @@ services:
     volumes:
       - ./data/npm:/data
       - ./data/letsencrypt:/etc/letsencrypt
+    networks: ['demo']
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
     networks: ['demo'] 
